@@ -2,10 +2,12 @@ import collections
 
 variables = collections.OrderedDict()
 facts = []
-rules = []
+rules = collections.OrderedDict()
 
 def add_definition(name, definition, root, fact):
 	variables[name] = (definition, root, fact)
+	if fact:
+		facts.append(name)
 
 def List(variables, facts, rules):
 	#print root vars
@@ -29,55 +31,55 @@ def List(variables, facts, rules):
 
 	#print Rules
 	print("Rules")
-	for rule in rules:
-		print("    {}".format(rule))	
+	for key, value in rules.items():
+		print("    {} -> {}".format(key, value))	
 
+def createNewRule(lhs, rhs):
+	print("creating new rule")
+	rules[lhs] = rhs
+
+def Learn():
+	for condition, result in rules.items():
+		#fix this to work with parenthesis etc
+		if condition:
+			facts.append(result)
 
 
 
 def main():
-	s = input('Enter a command: ')
-	inp = s.split()
-
-	if inp[0] == "Teach":
-		if inp[2] == "=":
-			if inp[1] in facts:
-				print("Error: cannotset a learned variable directly")
-			else:
-				#observeRootVar(inp[1], inp[3])
-				facts.append(inp[1])
-		elif inp[2] == "->":
-			if inp[3] in facts:
-				print("ah")
-				#createNewRule(inp[1], inp[3])
-		else:
-			string = s.split("=")
-			add_definition(inp[2], string[1], inp[1], False)
-
-	elif inp[0] == "List":
-		List(variables, facts, rules)
-	elif inp[0] == "Learn":
-		print("Learn()")
-	elif inp[0] == "Query":
-		print("#Query(inp[1])")
-	elif inp[0] == "Why":
-		print("#Why(inp[1])")
-
 
 	add_definition("S", "\"Sam likes ice cream\"", True, True)
-	add_definition("V", "Today is Sunday", True, True)
-	add_definition("EAT", "Sam will eat ice cream", False, True)
-	add_definition("F", "Python is fun", False, True)
+	add_definition("V", "\"Today is Sunday\"", True, False)
+	createNewRule("S", "V")
 
-	#somehow only let this append a fact if the key exists in variables
-	facts.append("S")
-	facts.append("V")
-	facts.append("EAT")
-	facts.append("F")
+	while(True):
+		s = input('Enter a command: ')
+		inp = s.split()
 
-	rules.append("S&V -> EAT")
+		if inp[0] == "Teach":
+			if inp[2] == "=":
+				if inp[1] in facts:
+					print("Error: cannot set a learned variable directly")
+				else:
+					#observeRootVar(inp[1], inp[3])
+					facts.append(inp[1])
+			elif inp[2] == "->":
+				if inp[1] and inp[3] in variables:
+					createNewRule(inp[1], inp[3])
+			else:
+				string = s.split("=")
+				add_definition(inp[2], string[1], inp[1], False)
 
-	List(variables, facts, rules)
+		elif inp[0] == "List":
+			List(variables, facts, rules)
+		elif inp[0] == "Learn":
+			Learn()
+		elif inp[0] == "Query":
+			print("#Query(inp[1])")
+		elif inp[0] == "Why":
+			print("#Why(inp[1])")
+
+
 
 
 if __name__ == "__main__":
