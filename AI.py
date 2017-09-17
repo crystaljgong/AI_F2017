@@ -68,7 +68,11 @@ def main():
 					createNewRule(inp[1], inp[3])
 			else:
 				string = s.split("=")
-				add_definition(inp[2], string[1], inp[1], False)
+				if(inp[2] not in variables):
+					if(inp[1] == "-R"):
+						add_definition(inp[2], string[1], True, False)
+					else:
+						add_definition(inp[2], string[1], False, False)
 
 		elif inp[0] == "List":
 			List(variables, facts, rules)
