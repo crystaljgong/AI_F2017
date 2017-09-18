@@ -5,7 +5,7 @@ facts = []
 rules = collections.OrderedDict()
 
 def add_definition(name, definition, root, fact):
-	variables[name] = (definition, root, fact)
+	variables[name] = [definition, root, fact]
 	if fact:
 		facts.append(name)
 
@@ -34,15 +34,33 @@ def List(variables, facts, rules):
 	for key, value in rules.items():
 		print("    {} -> {}".format(key, value))	
 
-def createNewRule(lhs, rhs):
-	print("creating new rule")
-	rules[lhs] = rhs
+def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
+	if lhs and rhs in variables:
+		rules[lhs] = rhs
 
 def Learn():
 	for condition, result in rules.items():
 		#fix this to work with parenthesis etc
-		if condition:
+		if condition and result not in facts:
 			facts.append(result)
+
+def editFact(var, truthVal):
+	if var not in variables:
+		print("variable not defined")
+	elif variables[var][1] is False: #if not a root var
+		print("You cannot set the truth value of learned variable")
+	else: #okay to set
+		if truthVal == "true":
+			variables[var][2] = True
+			facts.append(var)
+		elif truthVal == "false":
+			#variables[var][2] = False
+			variables[var][2]
+			facts.remove(var)
+		for fact in facts:
+			if variables[fact][1] == False: #for any learned variables in facts
+				variables[fact][1] == False #set that learned variable to false
+				facts.remove(fact) #and remove it from the fact list
 
 
 
@@ -50,22 +68,22 @@ def main():
 
 	add_definition("S", "\"Sam likes ice cream\"", True, True)
 	add_definition("V", "\"Today is Sunday\"", True, False)
+	add_definition("Test", "Test", False, False)
 	createNewRule("S", "V")
 
 	while(True):
 		s = input('Enter a command: ')
 		inp = s.split()
+		print(inp)
 
 		if inp[0] == "Teach":
+			#Teach S = true
 			if inp[2] == "=":
-				if inp[1] in facts:
-					print("Error: cannot set a learned variable directly")
-				else:
-					#observeRootVar(inp[1], inp[3])
-					facts.append(inp[1])
+				editFact(inp[1], inp[3])
+			#Teach a rule
 			elif inp[2] == "->":
-				if inp[1] and inp[3] in variables:
-					createNewRule(inp[1], inp[3])
+				createNewRule(inp[1], inp[3])
+			#Teach -R S = "Blah"
 			else:
 				string = s.split("=")
 				if(inp[2] not in variables):
