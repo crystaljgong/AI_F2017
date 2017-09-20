@@ -39,9 +39,73 @@ def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expression
 		rules[lhs] = rhs
 
 def Learn():
+	listOperator = []
+	listOperand = []
+	temp = ""
 	for condition, result in rules.items():
+		for i in condition: # add to 2 lists
+			if i.isalpha() or i == '_':
+				temp += i
+			elif i == '!' or i == '&' or i == '|' and listOperator.count() == 0:
+				if temp != "": # append operand
+					listOperand.append(temp)
+					temp = ""
+				listOperator.append(i)
+			elif i == '(' or i == '!':
+				if temp != "": # append operand
+					listOperand.append(temp)
+					temp = ""
+				listOperator.append(i)
+			elif i == ')':
+				if temp != "": # append operand
+					listOperand.append(temp)
+					temp = ""
+				while listOperator[len(listOperator)-1] == '(':
+					operator = listOperator.pop()
+			
+					if operator == '!':
+						operand1 = listOperand.pop()
+						listOperand.append(not variables[operand1][1]) # append true or false to operand list
+
+					elif operator == '|':
+						operand1 = listOperand.pop()
+						operand2 = listOperand.pop()
+						listOperand.append(variables[operand1][1] or variables[operand2][1])
+					else:
+						operand1 = listOperand.pop()
+						operand2 = listOperand.pop()
+						listOperand.append(variables[operand1][1] and variables[operand2][1])
+				listOperator.pop()
+			elif i == '&' or i == '|':
+				if operator == '|':
+					operand1 = listOperand.pop()
+					operand2 = listOperand.pop()
+					listOperand.append(variables[operand1][1] or variables[operand2][1])
+				else:
+					operand1 = listOperand.pop()
+					operand2 = listOperand.pop()
+					listOperand.append(variables[operand1][1] and variables[operand2][1])
+		
+		while(listOperator.count()>0):
+			operator = listOperator.pop()
+			
+			if operator == '!':
+				operand1 = listOperand.pop()
+				listOperand.append(not variables[operand1][1]) # append true or false to operand list
+
+			elif operator == '|':
+				operand1 = listOperand.pop()
+				operand2 = listOperand.pop()
+				listOperand.append(variables[operand1][1] or variables[operand2][1])
+			else:
+				operand1 = listOperand.pop()
+				operand2 = listOperand.pop()
+				listOperand.append(variables[operand1][1] and variables[operand2][1])
+		
+		if listOperand.count() == 1:
+			operand = listOperand.pop()
 		#fix this to work with parenthesis etc
-		if condition and result not in facts:
+		if variables[operand][1] and result not in facts:
 			facts.append(result)
 
 def Query(goal):
