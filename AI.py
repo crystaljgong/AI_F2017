@@ -44,6 +44,31 @@ def Learn():
 		if condition and result not in facts:
 			facts.append(result)
 
+def Query(goal):
+	#TRY TO PROVE IT
+	#goal is in list of facts
+	if goal in facts:
+		print("true")
+	#backwards chaining
+	else: #look for antecedetnt in rules
+		for key, value in rules.items():
+			if value == goal: #if you find it
+				print("key: {}, value: {}".format(key, value))
+				Query(key)
+				#if key in facts:
+				#	print("{} is in facts and {} -> {}, therefore {} is true".format(key, key, value, value))
+
+	#if goal is not in facts, #look for antecedent in rules
+			#if you find antecedent
+				#TRY TO PROVE IT
+				#try to look for antecedent in facts
+					#if found, goal is true
+					#if not found, look for antecedent in rules
+
+			#if you don't find antecedent
+				#cannot prove rule
+	
+
 def editFact(var, truthVal):
 	if var not in variables:
 		print("variable not defined")
@@ -74,7 +99,6 @@ def main():
 	while(True):
 		s = input('Enter a command: ')
 		inp = s.split()
-		print(inp)
 
 		if inp[0] == "Teach":
 			#Teach S = true
@@ -97,7 +121,7 @@ def main():
 		elif inp[0] == "Learn":
 			Learn()
 		elif inp[0] == "Query":
-			print("#Query(inp[1])")
+			Query(inp[1])
 		elif inp[0] == "Why":
 			print("#Why(inp[1])")
 
