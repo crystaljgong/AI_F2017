@@ -20,7 +20,6 @@ def List(variables, facts, rules):
 	#this not v efficient b/c looping twice but whatever
 	print("Learned Variables")
 	for key, value in variables.items():
-		poop = []
 		if not value[1]:
 			print("    {} = {}".format(key, value[0]))
 
@@ -31,42 +30,47 @@ def List(variables, facts, rules):
 
 	#print Rules
 	print("Rules")
-	for key, value in rules.items():
-		print("    {} -> {}".format(key, value))	
+	for key, values in rules.items():
+		for v in values:
+			print("    {} -> {}".format(key, v))	
 
 def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
-	if lhs and rhs in variables:
-		rules[lhs] = rhs
+	if lhs in variables and rhs in variables: #if both these variables are defined
+		if lhs in rules and rhs not in rules[lhs]: #if lhs is already a key and rhs is not already a value for it
+			rules[lhs].append(rhs)
+		else: #lhs is not already a key
+			rules[lhs] = []
+			rules[lhs].append(rhs)
 
 def Learn():
 	for condition, result in rules.items():
 		#fix this to work with parenthesis etc
-		if condition and result not in facts:
+		if condition and result not in facts: 
 			facts.append(result)
 
 def Query(goal):
 	#TRY TO PROVE IT
 	#goal is in list of facts
+	found = False
+	foundKey = ''
 	if goal in facts:
 		print("true")
+		foundKey = goal
 	#backwards chaining
 	else: #look for antecedetnt in rules
-		for key, value in rules.items():
-			if value == goal: #if you find it
-				print("key: {}, value: {}".format(key, value))
-				Query(key)
-				#if key in facts:
-				#	print("{} is in facts and {} -> {}, therefore {} is true".format(key, key, value, value))
+		for key, values in rules.items():
+			if goal in values: #if you find it
+				print("key: {}, value: {}".format(key, goal))
+				found = True
+				foundKey = Query(key)
+		if not found:
+			print("false")
 
-	#if goal is not in facts, #look for antecedent in rules
-			#if you find antecedent
-				#TRY TO PROVE IT
-				#try to look for antecedent in facts
-					#if found, goal is true
-					#if not found, look for antecedent in rules
+	print("foundKey: {}".format(foundKey))
+	return foundKey
 
-			#if you don't find antecedent
-				#cannot prove rule
+def Why(goal):
+	Query(goal)
 	
 
 def editFact(var, truthVal):
@@ -123,7 +127,7 @@ def main():
 		elif inp[0] == "Query":
 			Query(inp[1])
 		elif inp[0] == "Why":
-			print("#Why(inp[1])")
+			Why(inp[1])
 
 
 
