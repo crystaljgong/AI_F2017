@@ -1,4 +1,5 @@
 import collections
+import re
 
 variables = collections.OrderedDict()
 facts = []
@@ -128,7 +129,16 @@ def List(variables, facts, rules):
 			print("    {} -> {}".format(key, v))	
 
 def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
-	if lhs in variables and rhs in variables: #if both these variables are defined
+	lhsIsValid = True
+	vars = re.findall(r'\w', lhs)
+	print("findall: {}".format(vars))
+	#see if all the vars are in variables. if one of them isn't, valid evaluates to False.
+	for v in vars:
+		if v not in variables:
+			lhsIsValid = False
+
+	#actually put the rule in the dict
+	if lhsIsValid and rhs in variables: #if both these variables are defined
 		if lhs in rules and rhs not in rules[lhs]: #if lhs is already a key and rhs is not already a value for it
 			rules[lhs].append(rhs)
 		else: #lhs is not already a key
@@ -136,8 +146,6 @@ def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expression
 			rules[lhs].append(rhs)
 
 def Learn():
-	
-	
 	operand = ""
 	for condition, result in rules.items():
 		operand = parse(condition)
@@ -147,25 +155,46 @@ def Learn():
 				facts.append(r)
 
 def Query(goal):
-	# TRY TO PROVE IT
-	# goal is in list of facts
+	retval = False
 	found = False
-	foundKey = ''
+	# goal is in list of facts
 	if goal in facts:
+		retval = True
+		found = True
+		print("{} is in facts".format(goal))
 		print("true")
-		foundKey = goal
+ #re.split("([^a-zA-Z_])", lhs)
 	# backwards chaining
-	else: #look for antecedetnt in rules
+	else: #look for goal in rules
+		print("{} is not in facts. looking for a rule to prove it...".format(goal))
 		for key, values in rules.items():
 			if goal in values: #if you find it
-				print("key: {}, value: {}".format(key, goal))
+				print("found a matching rule! key: {}, value: {}".format(key, goal))
 				found = True
-				foundKey = Query(key)
+				#evaluates if this key expression is true
+				keys = key.split("\I")
+				var = ""
+				for c in key:
+					if c.isalpha():
+						var += c
+					else:
+						if var != "":
+							keys.append
+							var = ""
+				#get the last var
+				if var != "": 
+					keyIsTrue &= Query(var)
+					var = ""
+
+				print("value of key is {}".format(keyIsTrue))
+				retval = keyIsTrue	
+
 		if not found:
+			print("could not prove {}".format(goal))
+			retval = False
 			print("false")
 
-	print("foundKey: {}".format(foundKey))
-	return foundKey
+	return retval
 
 def Why(goal):
 	Query(goal)
