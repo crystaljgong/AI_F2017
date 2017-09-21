@@ -4,95 +4,43 @@ variables = collections.OrderedDict()
 facts = []
 rules = collections.OrderedDict()
 
-def add_definition(name, definition, root, fact):
-	variables[name] = [definition, root, fact]
-	if fact:
-		facts.append(name)
 
-def List(variables, facts, rules):
-	#print root vars
-	print("Root Variables")
-	for key, value in variables.items():
-		if value[1]:
-			print("    {} = {}".format(key, value[0]))
-
-	#print learned vars
-	#this not v efficient b/c looping twice but whatever
-	print("Learned Variables")
-	for key, value in variables.items():
-		if not value[1]:
-			print("    {} = {}".format(key, value[0]))
-
-	#print facts
-	print("Facts")
-	for fact in facts:
-		print("    {}".format(fact))	
-
-	#print Rules
-	print("Rules")
-	for key, values in rules.items():
-		for v in values:
-			print("    {} -> {}".format(key, v))	
-
-def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
-	if lhs in variables and rhs in variables: #if both these variables are defined
-		if lhs in rules and rhs not in rules[lhs]: #if lhs is already a key and rhs is not already a value for it
-			rules[lhs].append(rhs)
-		else: #lhs is not already a key
-			rules[lhs] = []
-			rules[lhs].append(rhs)
-
-def Learn():
+def parse(condition):
+	temp = ""
 	listOperator = []
 	listOperand = []
-	temp = ""
 	operand = ""
-	for condition, result in rules.items():
 
-		for i in condition: # add to 2 lists
+	for i in condition:  # add to 2 lists
 			# print("operands: {}".format(listOperand))
 			# print("operators: {}".format(listOperator))
 			# print("condition: " + condition)
-			if i.isalpha() or i == '_':
-				temp += i
-				
-			elif (i == '&' or i == '|') and (len(listOperator) == 0 or listOperator[-1] == '('):
-				
-				if temp != "": # append operand
-					listOperand.append(variables[temp][1])
-					temp = ""
-				listOperator.append(i)
-			elif i == '(' or i == '!':
-				if temp != "": # append operand
-					listOperand.append(variables[temp][1])
-					temp = ""
-				listOperator.append(i)
-			elif i == ')':
-				if temp != "": # append operand
-					listOperand.append(variables[temp][1])
-					temp = ""
-				while listOperator[-1] != '(':
-					operator = listOperator.pop()
-			
-					if operator == '!':
-						operand1 = listOperand.pop()
-						listOperand.append(not operand) # append true or false to operand list
+		if i.isalpha() or i == '_':
+			temp += i
 
-					elif operator == '|':
-						operand1 = listOperand.pop()
-						operand2 = listOperand.pop()
-						listOperand.append(operand1 or operand2)
-					else:
-						operand1 = listOperand.pop()
-						operand2 = listOperand.pop()
-						listOperand.append(operand1 and operand2)
-				listOperator.pop()
-			elif i == '&' or i == '|':
-				if temp != "": # append operand
-					listOperand.append(variables[temp][1])
-					temp = ""
-				
-				if operator == '|':
+		elif (i == '&' or i == '|') and (len(listOperator) == 0 or listOperator[-1] == '('):
+
+			if temp != "":  # append operand
+				listOperand.append(variables[temp][1])
+				temp = ""
+			listOperator.append(i)
+		elif i == '(' or i == '!':
+			if temp != "":  # append operand
+				listOperand.append(variables[temp][1])
+				temp = ""
+			listOperator.append(i)
+		elif i == ')':
+			if temp != "":  # append operand
+				listOperand.append(variables[temp][1])
+				temp = ""
+			while listOperator[-1] != '(':
+				operator = listOperator.pop()
+
+				if operator == '!':
+					operand1 = listOperand.pop()
+					listOperand.append(not operand)  # append true or false to operand list
+
+				elif operator == '|':
 					operand1 = listOperand.pop()
 					operand2 = listOperand.pop()
 					listOperand.append(operand1 or operand2)
@@ -100,7 +48,21 @@ def Learn():
 					operand1 = listOperand.pop()
 					operand2 = listOperand.pop()
 					listOperand.append(operand1 and operand2)
-		
+			listOperator.pop()
+		elif i == '&' or i == '|':
+			if temp != "":  # append operand
+				listOperand.append(variables[temp][1])
+				temp = ""
+
+			if operator == '|':
+				operand1 = listOperand.pop()
+				operand2 = listOperand.pop()					
+				listOperand.append(operand1 or operand2)
+			else:
+				operand1 = listOperand.pop()
+				operand2 = listOperand.pop()
+				listOperand.append(operand1 and operand2)
+
 		if temp != "": # append operand
 			listOperand.append(variables[temp][1])
 			temp = ""
@@ -133,19 +95,66 @@ def Learn():
 
 		if len(listOperand) == 1:
 			operand = listOperand.pop()
+		return operand
+
+def add_definition(name, definition, root, fact):
+	variables[name] = [definition, root, fact]
+	if fact:
+		facts.append(name)
+
+def List(variables, facts, rules):
+	# print root vars
+	print("Root Variables")
+	for key, value in variables.items():
+		if value[1]:
+			print("    {} = {}".format(key, value[0]))
+
+	# print learned vars
+	# this not v efficient b/c looping twice but whatever
+	print("Learned Variables")
+	for key, value in variables.items():
+		if not value[1]:
+			print("    {} = {}".format(key, value[0]))
+
+	# print facts
+	print("Facts")
+	for fact in facts:
+		print("    {}".format(fact))	
+
+	# print Rules
+	print("Rules")
+	for key, values in rules.items():
+		for v in values:
+			print("    {} -> {}".format(key, v))	
+
+def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
+	if lhs in variables and rhs in variables: #if both these variables are defined
+		if lhs in rules and rhs not in rules[lhs]: #if lhs is already a key and rhs is not already a value for it
+			rules[lhs].append(rhs)
+		else: #lhs is not already a key
+			rules[lhs] = []
+			rules[lhs].append(rhs)
+
+def Learn():
+	
+	
+	operand = ""
+	for condition, result in rules.items():
+		operand = parse(condition)
 
 		if operand and result not in facts:
-			facts.append(result)
+			for r in result:
+				facts.append(r)
 
 def Query(goal):
-	#TRY TO PROVE IT
-	#goal is in list of facts
+	# TRY TO PROVE IT
+	# goal is in list of facts
 	found = False
 	foundKey = ''
 	if goal in facts:
 		print("true")
 		foundKey = goal
-	#backwards chaining
+	# backwards chaining
 	else: #look for antecedetnt in rules
 		for key, values in rules.items():
 			if goal in values: #if you find it
@@ -172,7 +181,7 @@ def editFact(var, truthVal):
 			variables[var][2] = True
 			facts.append(var)
 		elif truthVal == "false":
-			#variables[var][2] = False
+			# variables[var][2] = False
 			variables[var][2]
 			facts.remove(var)
 		for fact in facts:
@@ -194,13 +203,13 @@ def main():
 		inp = s.split()
 
 		if inp[0] == "Teach":
-			#Teach S = true
+			# Teach S = true
 			if inp[2] == "=":
 				editFact(inp[1], inp[3])
-			#Teach a rule
+			# Teach a rule
 			elif inp[2] == "->":
 				createNewRule(inp[1], inp[3])
-			#Teach -R S = "Blah"
+			# Teach -R S = "Blah"
 			else:
 				string = s.split("=")
 				if(inp[2] not in variables):
