@@ -161,35 +161,35 @@ def Query(goal):
 	if goal in facts:
 		retval = True
 		found = True
-		print("{} is in facts".format(goal))
+		#print("{} is in facts".format(goal))
 		print("true")
  
 	# backwards chaining
 	else: #look for goal in rules
-		print("{} is not in facts. looking for a rule to prove it...".format(goal))
+		#print("{} is not in facts. looking for a rule to prove it...".format(goal))
 		for key, values in rules.items():
 			if goal in values: #if you find it
-				print("found a matching rule! key: {}, value: {}".format(key, goal))
+				#print("found a matching rule! key: {}, value: {}".format(key, goal))
 				found = True
 				#evaluates if this key expression is true
 				expression = re.split("([^a-zA-Z_])", key)
-				print("expression before parsing: {}".format(expression))
+				#print("expression before parsing: {}".format(expression))
 				for i in range(len(expression)):
-					print(expression[i])
+					#print(expression[i])
 					if expression[i] in variables:
-						print("expression[i] in variables: {}".format(expression[i]))
+						#print("expression[i] in variables: {}".format(expression[i]))
 						expression[i] = str(Query(expression[i]))
-						print("expression[i] value {}".format(expression[i]))
+						#print("expression[i] value {}".format(expression[i]))
 
-				print("expression after parsing: {}".format(expression))
+				#print("expression after parsing: {}".format(expression))
 
-				joinedValid = (''.join(expression)).replace('!', 'not ')
-				print("joinedValid: {}".format(joinedValid))
+				joinedValid = (''.join(expression)).replace('!', ' not ').replace('|', ' or ').replace('&', ' and ')
+				#print("joinedValid: {}".format(joinedValid))
 				retval = eval(joinedValid)
-				print("retval: {}".format(retval))
+				#print("retval: {}".format(retval))
 
 		if not found:
-			print("could not prove {}".format(goal))
+			#print("could not prove {}".format(goal))
 			retval = False
 			print("false")
 
