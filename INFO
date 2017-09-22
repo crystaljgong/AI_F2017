@@ -1,2 +1,6 @@
-[indicate the version of the compiler/interpreter that you used during the development.]
-also don't forget to make a makefile
+Crystal Gong (cjg5uw) and Cynthia Zheng (xz7uy)
+
+Python 3.5.x
+No makefile necessary
+Run with "python AI.py"
+
