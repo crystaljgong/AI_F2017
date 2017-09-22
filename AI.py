@@ -131,7 +131,7 @@ def List(variables, facts, rules):
 def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
 	lhsIsValid = True
 	vars = re.findall(r'\w', lhs)
-	print("findall: {}".format(vars))
+	#print("findall: {}".format(vars))
 	#see if all the vars are in variables. if one of them isn't, valid evaluates to False.
 	for v in vars:
 		if v not in variables:
@@ -154,49 +154,50 @@ def Learn():
 			for r in result:
 				facts.append(r)
 
-def Query(goal):
-	retval = False
-
+def Query(goal, original):
 	expression = re.split("([^a-zA-Z_])", goal)
-	print("expression before parsing: {}".format(expression))
+	#print("expression before parsing: {}".format(expression))
 	for i in range(len(expression)):
-		print(expression[i])
+		#print(expression[i])
 		if expression[i] in variables:
-			print("expression[i] in variables: {}".format(expression[i]))
+			#print("expression[i] in variables: {}".format(expression[i]))
 			if checkFacts(expression[i]):
 				expression[i] = 'True'				
 			else:
-				expression[i] = backChain(expression[i])
-			print("expression[i] value {}".format(expression[i]))
-
-	print("expression after parsing: {}".format(expression))
+				expression[i] = str(backChain(expression[i], original))
+			#print("expression[i] value {}".format(expression[i]))
+	#print("expression after parsing: {}".format(expression))
 
 	joinedValid = (''.join(expression)).replace('!', ' not ').replace('|', ' or ').replace('&', ' and ')
-	print("joinedValid: {}".format(joinedValid))
+	#print("joinedValid: {}".format(joinedValid))
 	retval= eval(joinedValid)
 
-	if retval:
-		print("true")
-	else:
-		print("false")
+	if goal == original:
+		if retval:
+			print('true')
+		else:
+			print('false')
+
+	return str(retval)
 
 def checkFacts(goal): #only ever take a single var
 	if goal in facts:
+		#print("{} is in facts".format(goal))
 		return True
-	print("{} is in facts".format(goal))
+	
 
-def backChain(goal): #goal is only ever a single var, never an expression
+def backChain(goal, original): #goal is only ever a single var, never an expression
 	found = False
 	# backwards chaining
 	#look for goal in rules
-	print("{} is not in facts. looking for a rule to prove it...".format(goal))
+	#print("{} is not in facts. looking for a rule to prove it...".format(goal))
 	for key, values in rules.items():
 		if goal in values: #if you find it
-			print("found a matching rule! key: {}, value: {}".format(key, goal))
+			#print("found a matching rule! key: {}, value: {}".format(key, goal))
 			found = True
-			retval = Query(key)
+			retval = Query(key, original)
 	if not found:
-		print("could not prove {}".format(goal))
+		#print("could not prove {}".format(goal))
 		retval = False
 		
 	return retval
@@ -258,7 +259,7 @@ def main():
 		elif inp[0] == "Learn":
 			Learn()
 		elif inp[0] == "Query":
-			Query(inp[1])
+			Query(inp[1], inp[1])
 		elif inp[0] == "Why":
 			Why(inp[1])
 
