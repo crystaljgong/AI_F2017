@@ -156,44 +156,51 @@ def Learn():
 
 def Query(goal):
 	retval = False
-	found = False
-	# goal is in list of facts
-	if goal in facts:
-		retval = True
-		found = True
-		#print("{} is in facts".format(goal))
+
+	expression = re.split("([^a-zA-Z_])", goal)
+	print("expression before parsing: {}".format(expression))
+	for i in range(len(expression)):
+		print(expression[i])
+		if expression[i] in variables:
+			print("expression[i] in variables: {}".format(expression[i]))
+			if checkFacts(expression[i]):
+				expression[i] = 'True'				
+			else:
+				expression[i] = backChain(expression[i])
+			print("expression[i] value {}".format(expression[i]))
+
+	print("expression after parsing: {}".format(expression))
+
+	joinedValid = (''.join(expression)).replace('!', ' not ').replace('|', ' or ').replace('&', ' and ')
+	print("joinedValid: {}".format(joinedValid))
+	retval= eval(joinedValid)
+
+	if retval:
 		print("true")
- 
+	else:
+		print("false")
+
+def checkFacts(goal): #only ever take a single var
+	if goal in facts:
+		return True
+	print("{} is in facts".format(goal))
+
+def backChain(goal): #goal is only ever a single var, never an expression
+	found = False
 	# backwards chaining
-	else: #look for goal in rules
-		#print("{} is not in facts. looking for a rule to prove it...".format(goal))
-		for key, values in rules.items():
-			if goal in values: #if you find it
-				#print("found a matching rule! key: {}, value: {}".format(key, goal))
-				found = True
-				#evaluates if this key expression is true
-				expression = re.split("([^a-zA-Z_])", key)
-				#print("expression before parsing: {}".format(expression))
-				for i in range(len(expression)):
-					#print(expression[i])
-					if expression[i] in variables:
-						#print("expression[i] in variables: {}".format(expression[i]))
-						expression[i] = str(Query(expression[i]))
-						#print("expression[i] value {}".format(expression[i]))
-
-				#print("expression after parsing: {}".format(expression))
-
-				joinedValid = (''.join(expression)).replace('!', ' not ').replace('|', ' or ').replace('&', ' and ')
-				#print("joinedValid: {}".format(joinedValid))
-				retval = eval(joinedValid)
-				#print("retval: {}".format(retval))
-
-		if not found:
-			#print("could not prove {}".format(goal))
-			retval = False
-			print("false")
-
+	#look for goal in rules
+	print("{} is not in facts. looking for a rule to prove it...".format(goal))
+	for key, values in rules.items():
+		if goal in values: #if you find it
+			print("found a matching rule! key: {}, value: {}".format(key, goal))
+			found = True
+			retval = Query(key)
+	if not found:
+		print("could not prove {}".format(goal))
+		retval = False
+		
 	return retval
+
 
 def Why(goal):
 	Query(goal)
