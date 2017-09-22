@@ -19,12 +19,30 @@ def parse(condition):
 		if i.isalpha() or i == '_':
 			temp += i
 
-		elif (i == '&' or i == '|') and (len(listOperator) == 0 or listOperator[-1] == '('):
-
+		elif (i == '&' or i == '|'):
 			if temp != "":  # append operand
 				listOperand.append(variables[temp][1])
 				temp = ""
-			listOperator.append(i)
+
+			if len(listOperator) == 0 or listOperator[-1] == '(':
+				listOperator.append(i)
+
+			elif i == '&' and (listOperator[-1] != '!' or listOperator[-1] != '&'):
+				listOperator.append(i)
+			elif i == '&' and (listOperator[-1] == '!' or listOperator[-1] == '&'):
+				operand1 = listOperand.pop()
+				operand2 = listOperand.pop()
+				operator1 = listOperator.pop()
+				joinedValid = (''.join((str(operand1), operator1, str(operand2)))).replace('!', ' not ').replace('|', ' or ').replace('&', ' and ')
+				listOperand.append(joinedValid)
+				listOperator.append(i)
+			elif i == '|' and (listOperator[-1] == '|' or listOperator[-1] == '&' or listOperator[-1] == '!'):
+				operand1 = listOperand.pop()
+				operand2 = listOperand.pop()
+				operator1 = listOperator.pop()			
+				joinedValid = (''.join((str(operand1), operator1, str(operand2)))).replace('!', ' not ').replace('|', ' or ').replace('&', ' and ')		
+				listOperand.append(joinedValid)
+				listOperator.append(i)
 		elif i == '(' or i == '!':
 			if temp != "":  # append operand
 				listOperand.append(variables[temp][1])
@@ -50,19 +68,7 @@ def parse(condition):
 					operand2 = listOperand.pop()
 					listOperand.append(operand1 and operand2)
 			listOperator.pop()
-		elif i == '&' or i == '|':
-			if temp != "":  # append operand
-				listOperand.append(variables[temp][1])
-				temp = ""
 
-			if operator == '|':
-				operand1 = listOperand.pop()
-				operand2 = listOperand.pop()					
-				listOperand.append(operand1 or operand2)
-			else:
-				operand1 = listOperand.pop()
-				operand2 = listOperand.pop()
-				listOperand.append(operand1 and operand2)
 
 		if temp != "": # append operand
 			listOperand.append(variables[temp][1])
@@ -152,7 +158,8 @@ def Learn():
 
 		if operand and result not in facts:
 			for r in result:
-				facts.append(r)
+				if r not in facts:
+					facts.append(r)
 
 def Query(goal, original):
 	expression = re.split("([^a-zA-Z_])", goal)
@@ -199,12 +206,31 @@ def backChain(goal, original): #goal is only ever a single var, never an express
 	if not found:
 		#print("could not prove {}".format(goal))
 		retval = False
-		
+
 	return retval
 
 
 def Why(goal):
 	Query(goal)
+
+	#True or False
+	#if true:
+
+		#if in facts
+			#I KNOW THAT ...
+
+		#if there is rule (use the fact to find the rule)
+			#BECAUSE ... I KNOW THAT ...
+
+		#if goal contains & or | or ! (spell out the input)
+			#I THUS KNOW THAT ... AND ...
+			#I THUS KNOW THAT ... OR ...
+			#I THUS KNOW THAT ... NOT ...
+
+	#else:
+		#I KNOW IT IS NOT TRUE THAT ...
+		#BECAUSE IT IS NOT TRUE THAT ... I CANNOT PROVE ...
+		#THUS I CANNOT PROVE ... AND ...
 	
 
 def editFact(var, truthVal):
