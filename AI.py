@@ -130,8 +130,8 @@ def List(variables, facts, rules):
 
 def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
 	lhsIsValid = True
-	vars = re.findall(r'\w', lhs)
-	#print("findall: {}".format(vars))
+	vars = re.split("[^a-zA-Z_]", lhs)
+	print("split: {}".format(vars))
 	#see if all the vars are in variables. if one of them isn't, valid evaluates to False.
 	for v in vars:
 		if v not in variables:
@@ -176,6 +176,7 @@ def Query(goal, original):
 		if retval:
 			print('true')
 		else:
+			print("I THUS CANNOT PROVE ")
 			print('false')
 
 	return str(retval)
@@ -183,6 +184,7 @@ def Query(goal, original):
 def checkFacts(goal): #only ever take a single var
 	if goal in facts:
 		#print("{} is in facts".format(goal))
+		print("I KNOW THAT {} ".format(variables[goal][0]))
 		return True
 	
 
@@ -196,8 +198,10 @@ def backChain(goal, original): #goal is only ever a single var, never an express
 			#print("found a matching rule! key: {}, value: {}".format(key, goal))
 			found = True
 			retval = Query(key, original)
+			print("BECAUSE {}{}".format("" if retval else "IT IS NOT TRUE THAT ", variables[goal][0]))
 	if not found:
 		#print("could not prove {}".format(goal))
+		print("I CANNOT PROVE {}".format(variables[goal][0]))
 		retval = False
 		
 	return retval
@@ -231,7 +235,7 @@ def main():
 
 	add_definition("S", "\"Sam likes ice cream\"", True, True)
 	add_definition("V", "\"Today is Sunday\"", True, False)
-	add_definition("Test", "Test", False, False)
+	add_definition("Test", "This is Test", False, False)
 	createNewRule("S", "V")
 
 	while(True):
