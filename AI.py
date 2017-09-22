@@ -154,17 +154,34 @@ def Learn():
 			for r in result:
 				facts.append(r)
 
-def Query(goal, original):
+def exp2Words(expression):
+	expression = re.split("([^a-zA-Z_])", expression)
+	#print("expression before parsing: {}".format(expression))
+	for i in range(len(expression)):
+		#print(expression[i])
+		if expression[i] in variables:
+			expression[i] = variables[expression[i]][0]
+			if "\"" in expression[i]: #if there are quotes around it, remove the quotes
+				expression[i] = expression[i][1:-1]
+			
+	#print("exp2words after parsing: {}".format(expression))
+
+	joinedValid = (''.join(expression)).replace('!', ' NOT ').replace('|', ' OR ').replace('&', ' AND ')
+	#print("joinedValid: {}".format(joinedValid))
+	
+	return joinedValid
+
+def Query(goal, original, why):
 	expression = re.split("([^a-zA-Z_])", goal)
 	#print("expression before parsing: {}".format(expression))
 	for i in range(len(expression)):
 		#print(expression[i])
 		if expression[i] in variables:
 			#print("expression[i] in variables: {}".format(expression[i]))
-			if checkFacts(expression[i]):
+			if checkFacts(expression[i], why):
 				expression[i] = 'True'				
 			else:
-				expression[i] = str(backChain(expression[i], original))
+				expression[i] = str(backChain(expression[i], original, why))
 			#print("expression[i] value {}".format(expression[i]))
 	#print("expression after parsing: {}".format(expression))
 
@@ -174,21 +191,23 @@ def Query(goal, original):
 
 	if goal == original:
 		if retval:
-			print('true')
+			if why: print("I THUS KNOW THAT {}".format(exp2Words(goal)))
+			else: print('true')
+
 		else:
-			print("I THUS CANNOT PROVE ")
-			print('false')
+			if why: print("THUS I CANNOT PROVE {}".format(exp2Words(goal)))
+			else: print('false')
 
 	return str(retval)
 
-def checkFacts(goal): #only ever take a single var
+def checkFacts(goal, why): #only ever take a single var
 	if goal in facts:
 		#print("{} is in facts".format(goal))
-		print("I KNOW THAT {} ".format(variables[goal][0]))
+		if why: print("I KNOW THAT {} ".format(exp2Words(goal)))
 		return True
 	
 
-def backChain(goal, original): #goal is only ever a single var, never an expression
+def backChain(goal, original, why): #goal is only ever a single var, never an expression
 	found = False
 	# backwards chaining
 	#look for goal in rules
@@ -197,18 +216,19 @@ def backChain(goal, original): #goal is only ever a single var, never an express
 		if goal in values: #if you find it
 			#print("found a matching rule! key: {}, value: {}".format(key, goal))
 			found = True
-			retval = Query(key, original)
-			print("BECAUSE {}{}".format("" if retval else "IT IS NOT TRUE THAT ", variables[goal][0]))
+			retval = Query(key, original, why)
+			if why: print("BECAUSE {}{} {}{}".format("" if retval else "IT IS NOT TRUE THAT ", exp2Words(key), "I KNOW THAT " if retval else "I CANNOT PROVE ", exp2Words(goal))) #I KNOW THAT/I CANNOT PROVE)
 	if not found:
 		#print("could not prove {}".format(goal))
-		print("I CANNOT PROVE {}".format(variables[goal][0]))
+		if why: print("I KNOW IT IS NOT TRUE THAT {}".format(exp2Words(goal)))
 		retval = False
 		
 	return retval
 
 
 def Why(goal):
-	Query(goal)
+	Query(goal, goal, False)
+	Query(goal, goal, True)
 	
 
 def editFact(var, truthVal):
@@ -263,7 +283,7 @@ def main():
 		elif inp[0] == "Learn":
 			Learn()
 		elif inp[0] == "Query":
-			Query(inp[1], inp[1])
+			Query(inp[1], inp[1], False)
 		elif inp[0] == "Why":
 			Why(inp[1])
 
