@@ -1,5 +1,4 @@
 #Crystal Gong (cjg5uw) and Cynthia Zheng (xz7uy)
-#TODO print rules in order that they were added
 
 import collections
 import re
@@ -26,27 +25,27 @@ def add_definition(name, definition, root):
 
 def List(variables, facts, rules):
 	# print root vars
-	print("Root Variables")
+	print("Root Variables: ")
 	for key, value in variables.items():
 		if value[1]:
-			print("    {} = {}".format(key, value[0]))
+			print("\t{} = {}".format(key, value[0]))
 
 	# print learned vars
-	print("Learned Variables")
+	print("\nLearned Variables: ")
 	for key, value in variables.items():
 		if not value[1]:
-			print("    {} = {}".format(key, value[0]))
+			print("\t{} = {}".format(key, value[0]))
 
 	# print facts
-	print("Facts")
+	print("\nFacts: ")
 	for fact in facts:
-		print("    {}".format(fact))	
+		print("\t{}".format(fact))	
 
 	# print Rules
-	print("Rules")
+	print("\nRules: ")
 	for key, values in rules.items():
 		for v in values:
-			print("    {} -> {}".format(key, v))	
+			print("\t{} -> {}".format(key, v))	
 
 def createNewRule(lhs, rhs): 
 	lhsIsValid = True
