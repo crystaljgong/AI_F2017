@@ -107,7 +107,8 @@ def parse(condition):
 def add_definition(name, definition, root, fact):
 	variables[name] = [definition, root, fact]
 	if fact:
-		facts.append(name)
+		if name not in facts:
+			facts.append(name)
 
 def List(variables, facts, rules):
 	# print root vars
@@ -245,7 +246,8 @@ def editFact(var, truthVal):
 	else: #okay to set
 		if truthVal == "true":
 			variables[var][2] = True
-			facts.append(var)
+			if var not in facts:
+				facts.append(var)
 		elif truthVal == "false":
 			# variables[var][2] = False
 			variables[var][2]
