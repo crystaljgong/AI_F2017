@@ -163,7 +163,7 @@ def Query(goal):
 		found = True
 		print("{} is in facts".format(goal))
 		print("true")
- #re.split("([^a-zA-Z_])", lhs)
+ 
 	# backwards chaining
 	else: #look for goal in rules
 		print("{} is not in facts. looking for a rule to prove it...".format(goal))
@@ -172,22 +172,21 @@ def Query(goal):
 				print("found a matching rule! key: {}, value: {}".format(key, goal))
 				found = True
 				#evaluates if this key expression is true
-				keys = key.split("\I")
-				var = ""
-				for c in key:
-					if c.isalpha():
-						var += c
-					else:
-						if var != "":
-							keys.append
-							var = ""
-				#get the last var
-				if var != "": 
-					keyIsTrue &= Query(var)
-					var = ""
+				expression = re.split("([^a-zA-Z_])", key)
+				print("expression before parsing: {}".format(expression))
+				for i in range(len(expression)):
+					print(expression[i])
+					if expression[i] in variables:
+						print("expression[i] in variables: {}".format(expression[i]))
+						expression[i] = str(Query(expression[i]))
+						print("expression[i] value {}".format(expression[i]))
 
-				print("value of key is {}".format(keyIsTrue))
-				retval = keyIsTrue	
+				print("expression after parsing: {}".format(expression))
+
+				joinedValid = (''.join(expression)).replace('!', 'not ')
+				print("joinedValid: {}".format(joinedValid))
+				retval = eval(joinedValid)
+				print("retval: {}".format(retval))
 
 		if not found:
 			print("could not prove {}".format(goal))
