@@ -138,6 +138,7 @@ def List(variables, facts, rules):
 def createNewRule(lhs, rhs): #TODO: fix this so it deals with complex expressions A&B|!C
 	lhsIsValid = True
 	vars = re.split("[^a-zA-Z_]", lhs)
+	vars = filter(None, vars)
 	print("split: {}".format(vars))
 	#see if all the vars are in variables. if one of them isn't, valid evaluates to False.
 	for v in vars:
