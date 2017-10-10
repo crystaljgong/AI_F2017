@@ -19,9 +19,14 @@ public class Node extends Point implements Comparable<Node> {
 
 	@Override
 	public String toString() {
-		return "\nNode [fTotal=" + fTotal + ", cameFrom=" + parent.getLocation() + ", location=" + super.toString() + "]";
+		if (parent != null) {
+			return "\nNode [fTotal=" + fTotal + ", parent=" + parent.getLocation() + ", location=" + super.toString() + "]";
+	
+		}
+		else
+			return "\nNode [fTotal=" + fTotal + ", location=" + super.toString() + "]";
 	}
-
+			
 	public int getFromStart_g() {
 		return fromStart_g;
 	}
@@ -66,11 +71,16 @@ public class Node extends Point implements Comparable<Node> {
 	@Override
 	public boolean equals(Object o) {
 		if (o instanceof Node) {
-		return (this.getLocation().equals(((Node) o).getLocation()) //same point
-				&& this.getfTotal() == ((Node)o).getfTotal()); //same f score
+		return (this.getLocation().equals(((Node) o).getLocation())); //same point
+			//&& this.getfTotal() == ((Node)o).getfTotal()); //same f score
 		}
 		return false;
-		
 	}
+	
+	@Override
+    public int hashCode() {
+		return super.hashCode()*fTotal;
+        
+    }
 
 }
