@@ -37,7 +37,6 @@ public class MyRobot extends Robot {
 
 		for (int i = 0; i < neighbors.length; i++) {
 			neighbors[i].translate(translations[i][0], translations[i][1]); // make new pt
-			// System.out.println("i: " + i + ", " + neighbors[i]);
 		}
 		return neighbors;
 	}
@@ -49,15 +48,13 @@ public class MyRobot extends Robot {
 
 		// push successive parent onto stack
 		while (!(parent.getLocation().equals(startPos))) {
-			//System.out.println("parent: " + parent);
+
 			path.push(parent.getLocation());
 			parent = parent.getParent();
 			if (parent == null) {
 				break;
 			}
 		}
-		// print the stack
-		System.out.println(Arrays.toString(path.toArray()));
 
 		// move along the path we created after generate path
 		while (!path.isEmpty()) {
@@ -73,7 +70,6 @@ public class MyRobot extends Robot {
 			} else {
 				break;
 			}
-			//System.out.println("are we here");
 		}
 	}
 
@@ -102,19 +98,15 @@ public class MyRobot extends Robot {
 
 			// get neighbors
 			Node center = open.poll();
-			//System.out.println("\n THE CENTER IS " + center.getLocation() + "\n");
 			Node[] neighbors = getNeighbors(center);
 
 			for (Node n : neighbors) {
-				//System.out.println("LOOKING AT " + n.getLocation());
 
 				// check if neighbor is off edge of map
 				if ((n.getX() >= 0 && n.getY() >= 0 && n.getX() < height && n.getY() < width)) {
-					// System.out.println(n.toString() + " is within bounds");
 
 					// check if this neighbor is the end
 					if (n.getLocation().equals(endPos)) {
-						System.out.println("FOUND THE END!!!!");
 						generatePathAndGo(n);
 						break whileopen; // break this while loop
 					}
@@ -125,7 +117,13 @@ public class MyRobot extends Robot {
 					if (isUncertain) {
 						int obstacle = 0;
 						int notObstacle = 0;
-						int times = (width * height)/4;
+						int times = 0;
+
+						if (times < 40) {
+							times = 40;
+						} else {
+							times = (width * height)/4;
+						}
 						
 						for (int z = 0; z < times; z++) {
 							if (super.pingMap(new Point((int) n.getX(), (int) n.getY())).equals("O")) {
@@ -153,8 +151,6 @@ public class MyRobot extends Robot {
 							// if a node with the same position as successor is in the OPEN list which has a
 							// lower f than successor, skip this successor
 							if (o.getLocation().equals(n.getLocation()) && (o.getfTotal() <= n.getfTotal())) {
-								//System.out.println("skip is true! open's  f: " + o.getfTotal());
-								//System.out.println("my f (open): " + n.getfTotal());
 								skip = true;
 							}
 						}
@@ -162,38 +158,20 @@ public class MyRobot extends Robot {
 							// if a node with the same position as successor is in the CLOSED list which has
 							// a lower f than successor, skip this successor
 							if (other.getLocation().equals(n.getLocation()) && (other.getfTotal() <= n.getfTotal())) {
-								//System.out.println("skip is true! closed's  f: " + other.getfTotal());
-								//System.out.println("my f (closed): " + n.getfTotal());
 								skip = true;
 							}
 						}
 						// otherwise, add the node to the open list
 						if (!skip) {
-							//System.out.println("adding " + n.getLocation() + " to open list with f " + n.getfTotal());
 							open.add(n);
 						}
 
-					} //else
-//						System.out.println("ping for " + n.getLocation() + " gave not O");
-
-				} //else
-//					System.out.println("point " + n.getLocation() + " out of bounds");
-
-			}
-			// the following can be erased after debugging is finished
-			//System.out.println("OPEN LIST: ");
-			for (Node thing : open) {
-				//System.out.println(thing);
+					}
+				} 
 			}
 
 			closed.add(center);
 
-			//System.out.println("CLOSED LIST: ");
-			for (Node thing : closed) {
-				if (thing.getParent() != null) {
-					//System.out.println(thing);// + " coming from " + thing.getParent());
-				}
-			}
 		}
 
 	}
