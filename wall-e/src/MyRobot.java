@@ -48,10 +48,13 @@ public class MyRobot extends Robot {
 		Node parent = end.getParent();
 
 		// push successive parent onto stack
-		while (!parent.getLocation().equals(startPos)) {
+		while (!(parent.getLocation().equals(startPos))) {
 			//System.out.println("parent: " + parent);
 			path.push(parent.getLocation());
 			parent = parent.getParent();
+			if (parent == null) {
+				break;
+			}
 		}
 		// print the stack
 		System.out.println(Arrays.toString(path.toArray()));
@@ -62,12 +65,15 @@ public class MyRobot extends Robot {
 			if (!super.pingMap(nextMove).equals("X")) {
 				super.move(nextMove);
 				try {
-					TimeUnit.SECONDS.sleep((long) 1);
+					TimeUnit.SECONDS.sleep((long) 0.5);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+			} else {
+				break;
 			}
+			//System.out.println("are we here");
 		}
 	}
 
@@ -112,9 +118,30 @@ public class MyRobot extends Robot {
 						generatePathAndGo(n);
 						break whileopen; // break this while loop
 					}
+					
 
 					// check if it's an obstacle
-					if (super.pingMap(new Point((int) n.getX(), (int) n.getY())).equals("O")) {
+					boolean obs = false;
+					if (isUncertain) {
+						int obstacle = 0;
+						int notObstacle = 0;
+						int times = (width * height)/4;
+						
+						for (int z = 0; z < times; z++) {
+							if (super.pingMap(new Point((int) n.getX(), (int) n.getY())).equals("O")) {
+								notObstacle += 1;
+							} else {
+								obstacle += 1;
+							}
+						}
+						if (obstacle > notObstacle) {
+							obs = true;
+						}
+					} else {
+						obs = !super.pingMap(new Point((int) n.getX(), (int) n.getY())).equals("O");
+					}
+					
+					if (!obs) {
 
 						// set f score for neighbor
 						n.setFromStart_g(center.fromStart_g + 1);
@@ -195,7 +222,7 @@ public class MyRobot extends Robot {
 
 	public static void main(String[] args) {
 		try {
-			World myWorld = new World("TestCases/myInputFile3.txt", true);
+			World myWorld = new World("TestCases/myInputFile5.txt", true);
 
 			MyRobot robot = new MyRobot();
 			robot.addToWorld(myWorld);
