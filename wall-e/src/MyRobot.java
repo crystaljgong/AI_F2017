@@ -49,7 +49,7 @@ public class MyRobot extends Robot {
 
 		// push successive parent onto stack
 		while (!parent.getLocation().equals(startPos)) {
-			System.out.println("parent: " + parent);
+			//System.out.println("parent: " + parent);
 			path.push(parent.getLocation());
 			parent = parent.getParent();
 		}
@@ -58,12 +58,15 @@ public class MyRobot extends Robot {
 
 		// move along the path we created after generate path
 		while (!path.isEmpty()) {
-			super.move(path.pop());
-			try {
-				TimeUnit.SECONDS.sleep((long) .5);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			Point nextMove = path.pop();
+			if (!super.pingMap(nextMove).equals("X")) {
+				super.move(nextMove);
+				try {
+					TimeUnit.SECONDS.sleep((long) 1);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
 	}
@@ -72,6 +75,9 @@ public class MyRobot extends Robot {
 	public void travelToDestination() {
 
 		if (isUncertain) {
+			while(!super.getPosition().equals(endPos)) {
+				aStarCertain();
+			}
 			// call function to deal with uncertainty
 		} else {
 			aStarCertain();
@@ -81,18 +87,20 @@ public class MyRobot extends Robot {
 
 	public void aStarCertain() {
 		// init with starting point
+
 		Node start = new Node(super.getPosition(), null);
 		open.add(start);
+		startPos = start.getLocation();
 
 		whileopen: while (!open.isEmpty()) {
 
 			// get neighbors
 			Node center = open.poll();
-			System.out.println("\n THE CENTER IS " + center.getLocation() + "\n");
+			//System.out.println("\n THE CENTER IS " + center.getLocation() + "\n");
 			Node[] neighbors = getNeighbors(center);
 
 			for (Node n : neighbors) {
-				System.out.println("LOOKING AT " + n.getLocation());
+				//System.out.println("LOOKING AT " + n.getLocation());
 
 				// check if neighbor is off edge of map
 				if ((n.getX() >= 0 && n.getY() >= 0 && n.getX() < height && n.getY() < width)) {
@@ -118,8 +126,8 @@ public class MyRobot extends Robot {
 							// if a node with the same position as successor is in the OPEN list which has a
 							// lower f than successor, skip this successor
 							if (o.getLocation().equals(n.getLocation()) && (o.getfTotal() <= n.getfTotal())) {
-								System.out.println("skip is true! open's  f: " + o.getfTotal());
-								System.out.println("my f (open): " + n.getfTotal());
+								//System.out.println("skip is true! open's  f: " + o.getfTotal());
+								//System.out.println("my f (open): " + n.getfTotal());
 								skip = true;
 							}
 						}
@@ -127,36 +135,36 @@ public class MyRobot extends Robot {
 							// if a node with the same position as successor is in the CLOSED list which has
 							// a lower f than successor, skip this successor
 							if (other.getLocation().equals(n.getLocation()) && (other.getfTotal() <= n.getfTotal())) {
-								System.out.println("skip is true! closed's  f: " + other.getfTotal());
-								System.out.println("my f (closed): " + n.getfTotal());
+								//System.out.println("skip is true! closed's  f: " + other.getfTotal());
+								//System.out.println("my f (closed): " + n.getfTotal());
 								skip = true;
 							}
 						}
 						// otherwise, add the node to the open list
 						if (!skip) {
-							System.out.println("adding " + n.getLocation() + " to open list with f " + n.getfTotal());
+							//System.out.println("adding " + n.getLocation() + " to open list with f " + n.getfTotal());
 							open.add(n);
 						}
 
-					} else
-						System.out.println("ping for " + n.getLocation() + " gave not O");
+					} //else
+//						System.out.println("ping for " + n.getLocation() + " gave not O");
 
-				} else
-					System.out.println("point " + n.getLocation() + " out of bounds");
+				} //else
+//					System.out.println("point " + n.getLocation() + " out of bounds");
 
 			}
 			// the following can be erased after debugging is finished
-			System.out.println("OPEN LIST: ");
+			//System.out.println("OPEN LIST: ");
 			for (Node thing : open) {
-				System.out.println(thing);
+				//System.out.println(thing);
 			}
 
 			closed.add(center);
 
-			System.out.println("CLOSED LIST: ");
+			//System.out.println("CLOSED LIST: ");
 			for (Node thing : closed) {
 				if (thing.getParent() != null) {
-					System.out.println(thing);// + " coming from " + thing.getParent());
+					//System.out.println(thing);// + " coming from " + thing.getParent());
 				}
 			}
 		}
@@ -187,7 +195,7 @@ public class MyRobot extends Robot {
 
 	public static void main(String[] args) {
 		try {
-			World myWorld = new World("TestCases/myInputFile4.txt", false);
+			World myWorld = new World("TestCases/myInputFile3.txt", true);
 
 			MyRobot robot = new MyRobot();
 			robot.addToWorld(myWorld);
