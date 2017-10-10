@@ -119,7 +119,7 @@ public class MyRobot extends Robot {
 						int notObstacle = 0;
 						int times = 0;
 
-						if (times < 40) {
+						if ((width * height)/4 < 40) {
 							times = 40;
 						} else {
 							times = (width * height)/4;
