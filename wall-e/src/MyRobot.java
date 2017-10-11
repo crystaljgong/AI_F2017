@@ -13,7 +13,6 @@ public class MyRobot extends Robot {
 	Point endPos;
 	int height;
 	int width;
-	HashSet<Node> closed = new HashSet<Node>();
 	PriorityQueue<Node> open = new PriorityQueue<Node>();
 	Stack<Point> path = new Stack<Point>();
 
@@ -160,14 +159,13 @@ public class MyRobot extends Robot {
 							if (o.getLocation().equals(n.getLocation()) && (o.getfTotal() <= n.getfTotal())) {
 								skip = true;
 							}
-						}
-						for (Node other : closed) {
-							// if a node with the same position as successor is in the CLOSED list which has
+							// if a node with the same position as successor has onList flag which has
 							// a lower f than successor, skip this successor
-							if (other.getLocation().equals(n.getLocation()) && (other.getfTotal() <= n.getfTotal())) {
+							if(o.getLocation().equals(n.getLocation()) && (o.getfTotal() <= n.getfTotal()) && o.getOnList()) {
 								skip = true;
 							}
 						}
+						
 						// otherwise, add the node to the open list
 						if (!skip) {
 							open.add(n);
@@ -177,7 +175,7 @@ public class MyRobot extends Robot {
 				} 
 			}
 
-			closed.add(center);
+			center.setOnList();
 
 		}
 
@@ -207,7 +205,7 @@ public class MyRobot extends Robot {
 
 	public static void main(String[] args) {
 		try {
-			World myWorld = new World("TestCases/myInputFile7.txt", false);
+			World myWorld = new World("TestCases/myInputFile1.txt", false);
 
 			MyRobot robot = new MyRobot();
 			robot.addToWorld(myWorld);

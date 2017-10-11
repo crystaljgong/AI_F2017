@@ -6,6 +6,7 @@ public class Node extends Point implements Comparable<Node> {
 	int fromStart_g;
 	int fromEnd_h;
 	int fTotal;
+	boolean onList;
 	Node parent;
 
 	public Node(Point p, Node from) {
@@ -14,6 +15,7 @@ public class Node extends Point implements Comparable<Node> {
 		this.fromEnd_h = 0;
 		this.fTotal = 0;
 		this.parent = from;
+		this.onList = false;
 	}
 
 
@@ -59,6 +61,14 @@ public class Node extends Point implements Comparable<Node> {
 
 	public void setParent(Node cameFrom) {
 		this.parent = cameFrom;
+	}
+	
+	public boolean getOnList() {
+		return onList;
+	}
+
+	public void setOnList() {
+		this.onList = true;
 	}
 
 	@Override
