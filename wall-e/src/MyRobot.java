@@ -18,13 +18,20 @@ public class MyRobot extends Robot {
 	Stack<Point> path = new Stack<Point>();
 
 
-	public int calcDistance(Point current, Point end) {
-		// using diagonal distance
+	public int calcDistance(Point current, Point end, int heuristic) {
 		double dx = Math.abs(current.getX() - end.getX());
 		double dy = Math.abs(current.getY() - end.getY());
-		return (int) Math.max(dx, dy);
+		if (heuristic == 0) {
+			//manhattan distance
+			return (int) (dx + dy);
+		} else if (heuristic==1) {
+			//euclidean distance
+			return (int) Math.sqrt(dx*dx+dy*dy);
+		}
+		else 
+			// diagonal distance
+			return (int) Math.max(dx, dy);
 	}
-	
 	public Node[] getNeighbors(Node n) {
 		int translations[][] = { { 0, 1 }, { 1, 1 }, { 1, 0 }, { 1, -1 }, { 0, -1 }, { -1, -1 }, { -1, 0 }, { -1, 1 } };
 		/*
@@ -143,7 +150,7 @@ public class MyRobot extends Robot {
 
 						// set f score for neighbor
 						n.setFromStart_g(center.fromStart_g + 1);
-						n.setFromEnd_h(calcDistance(n, endPos));
+						n.setFromEnd_h(calcDistance(n, endPos, 1));
 
 						// check if neighbor gives a better path than anything else we've seen already
 						boolean skip = false;
@@ -200,7 +207,7 @@ public class MyRobot extends Robot {
 
 	public static void main(String[] args) {
 		try {
-			World myWorld = new World("TestCases/myInputFile5.txt", true);
+			World myWorld = new World("TestCases/myInputFile7.txt", false);
 
 			MyRobot robot = new MyRobot();
 			robot.addToWorld(myWorld);
