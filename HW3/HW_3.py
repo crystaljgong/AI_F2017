@@ -1,182 +1,103 @@
 #Crystal Gong(cjg5uw), Cynthia Zheng(xz7uy)
 import collections
 import numpy as np
+from itertools import product
 
 
 def main():
-    matrix = [[0 for x in range(7)] for y in range(7)] # initialize matrix
-    points = collections.OrderedDict() # dictionary of points
+	###EDIT CASE HERE###
+	case = 3
+	###EDIT CASE HERE###
 
-    for y in range(7):
-        # initialize dictionary
-        for x in range(7):
-            points[y, x] = 0
+	pts = np.zeros((7,7))
 
-    # calculate the utility of each state
-    iters = 0
-    modified = True
+	iters = 0
+	modified = True
+	neighborVal = 0
 
-    while iters <= 1000 and modified:
-        iters += 1
-        modified = False
-        reward = -1
+	#these are in x, y, which is opposite from the (i, j) which goes row, column
+	#0 down, 1 downright, 2 right, 3 upright, 4 up, 5 upleft, 6 left, 7 downleft, 8 down, 9 downright, 10 right
+	allNeighbors = [[0, 1], [1,1], [1,0], [1,-1], [0,-1], [-1, -1], [-1, 0], [-1, 1], [0, 1], [1,1], [1,0]];
+      
+	while iters <= 1000 and modified:
+	    iters += 1
+	    modified = False
 
-        for p in points:
+	    for i, j in product(range(7), range(7)):
+   	    	reward = -1
+   	    	if i == 3 and j == 6:
+   	    		reward = 0
 
-            reward = -1
+        	maxAction = pts[i,j]
 
-            maxAction = points[p]
+        	#top row
+        	if i == 0:
+        		#top middle
+        		if j != 0 and j != 6: #left, downleft, down, downright, right
+        			neighbors = allNeighbors[6:]
+        		#top left
+        		if j == 0: #down, downright, 
+        			neighbors = allNeighbors[:3]
+        		#top right
+        		if j == 6: #left, downleft, down
+        			neighbors = allNeighbors[6:9]
+        		
+        	#bottom row
+        	elif i == 6:
+        		#bottom middle
+        		if j != 0 and j != 6: #right, upright, up, upleft, left
+        			neighbors = allNeighbors[2:7]
+        		#bottom left
+        		if j == 0: #right, upright, up
+        			neighbors = allNeighbors[2:5]
+        		#bottom right
+        		elif j ==6:  #up, upleft, left
+        			neighbors = allNeighbors[4:7]
 
-            if p[0] == 0 and p[1] == 0: ############################# top left corner
-                if points[0,1] > maxAction:
-                    maxAction = points[0,1]
+        	#middle rows
+        	else: #i != 0 and != 6
+        		#properly in the middle
+        		if j != 0 and j != 6:
+        			neighbors = allNeighbors[:8]
+        		#left side
+        		if j == 0:
+        			neighbors = allNeighbors[:5]
+        		#right side
+        		elif j == 6:
+        			neighbors = allNeighbors[4:9]
+        	
+        	
+        	#calculate s'
+    		for n in neighbors: 
+    			col = j + n[0]
+    			row = i + n[1]
+    				
+    			if case == 3:
+					if j > 2 and j < 6: #between 3 and 5
+						print("case 3")
+						row = i + n[1] - 2
+						if row < 0:
+							row = 0
 
-                if points[1,1] > maxAction:
-                    maxAction = points[1,1]
+    			if case == 2:
+    				if j > 2 and j < 6: #between 3 and 5
+    					print("case 2")
+    					row = i + n[1] - 1
+    					if row < 0:
+							row = 0
+    			
+    			neighborVal = pts[row, col]
 
-                if points[1,0] > maxAction:
-                    maxAction = points[1,0]
-                
-         
-            elif p[0] == 0 and p[1] == 6: ############################# top right corner
-                if points[1,6] > maxAction:
-                    maxAction = points[1,6]
+    			if neighborVal > maxAction:
+    				maxAction = neighborVal
 
-                if points[1,5] > maxAction:
-                    maxAction = points[1,5]
+        	#if the difference between the current utility of the state and the new utility of the state >= 0.001
+        	if abs(pts[i,j]-(reward + maxAction)) >= 0.001:
+           		# update the utility of the state
+				pts[i,j] = reward + maxAction
+				modified = True
 
-                if points[0,5] > maxAction:
-                    maxAction = points[0,5]
-                
-
-            elif p[0] == 6 and p[1] == 0: ############################# bottom left corner
-                if points[5,0] > maxAction:
-                    maxAction = points[5,0]
-
-                if points[5,1] > maxAction:
-                    maxAction = points[5,1]
-
-                if points[6,1] > maxAction:
-                    maxAction = points[6,1]
-                
-
-            elif p[0] == 6 and p[1] == 6: ############################# bottom right corner
-                if points[6,5] > maxAction:
-                    maxAction = points[6,5]
-
-                if points[5,5] > maxAction:
-                    maxAction = points[5,5]
-
-                if points[5,6] > maxAction:
-                    maxAction = points[5,6]
-                
-
-            elif p[0] == 0: ############################# top edge
-                if points[p[0],p[1]+1] > maxAction:
-                    maxAction = points[p[0],p[1]+1]
-
-                if points[p[0]+1,p[1]+1] > maxAction:
-                    maxAction = points[p[0]+1,p[1]+1]
-
-                if points[p[0]+1,p[1]] > maxAction:
-                    maxAction = points[p[0]+1,p[1]] 
-
-                if points[p[0]+1,p[1]-1]  > maxAction:
-                    maxAction = points[p[0]+1,p[1]-1]
-
-                if points[p[0],p[1]-1] > maxAction:
-                    maxAction = points[p[0],p[1]-1]
-            
-            elif p[0] == 6: ############################# bottom edge
-                if points[p[0]-1,p[1]-1] > maxAction:
-                    maxAction = points[p[0]-1,p[1]-1]
-
-                if points[p[0]-1,p[1]] > maxAction:
-                    maxAction = points[p[0]-1,p[1]]
-
-                if points[p[0]-1,p[1]+1] > maxAction:
-                    maxAction = points[p[0]-1,p[1]+1]
-                
-                if points[p[0],p[1]+1] > maxAction:
-                    maxAction = points[p[0],p[1]+1]
-
-                if points[p[0],p[1]-1] > maxAction:
-                    maxAction = points[p[0],p[1]-1]
-            
-            elif p[1] == 0: ############################# left edge
-                if points[p[0]-1,p[1]] > maxAction:
-                    maxAction = points[p[0]-1,p[1]]
-
-                if points[p[0]-1,p[1]+1] > maxAction:
-                    maxAction = points[p[0]-1,p[1]+1]
-                
-                if points[p[0],p[1]+1] > maxAction:
-                    maxAction = points[p[0],p[1]+1]
-
-                if points[p[0]+1,p[1]+1] > maxAction:
-                    maxAction = points[p[0]+1,p[1]+1]
-
-                if points[p[0]+1,p[1]] > maxAction:
-                    maxAction = points[p[0]+1,p[1]] 
-            
-            elif p[1] == 6: ############################# right edge
-                if p[0] == 3: # reward is zero at this point
-                    reward = 0
-
-                if points[p[0]-1,p[1]-1] > maxAction:
-                    maxAction = points[p[0]-1,p[1]-1]
-
-                if points[p[0]-1,p[1]] > maxAction:
-                    maxAction = points[p[0]-1,p[1]]
-
-                if points[p[0]+1,p[1]] > maxAction:
-                    maxAction = points[p[0]+1,p[1]] 
-
-                if points[p[0]+1,p[1]-1]  > maxAction:
-                    maxAction = points[p[0]+1,p[1]-1]
-
-                if points[p[0],p[1]-1] > maxAction:
-                    maxAction = points[p[0],p[1]-1]
-
-
-            else: ############################# points in the center
-                if points[p[0]-1,p[1]-1] > maxAction:
-                    maxAction = points[p[0]-1,p[1]-1]
-
-                if points[p[0]-1,p[1]] > maxAction:
-                    maxAction = points[p[0]-1,p[1]]
-
-                if points[p[0]-1,p[1]+1] > maxAction:
-                    maxAction = points[p[0]-1,p[1]+1]
-                
-                if points[p[0],p[1]+1] > maxAction:
-                    maxAction = points[p[0],p[1]+1]
-
-                if points[p[0]+1,p[1]+1] > maxAction:
-                    maxAction = points[p[0]+1,p[1]+1]
-
-                if points[p[0]+1,p[1]] > maxAction:
-                    maxAction = points[p[0]+1,p[1]] 
-
-                if points[p[0]+1,p[1]-1]  > maxAction:
-                    maxAction = points[p[0]+1,p[1]-1]
-
-                if points[p[0],p[1]-1] > maxAction:
-                    maxAction = points[p[0],p[1]-1]
-
-            # if the difference between the current utility of the state and the new utility of the state >= 0.001
-            if abs(points[p]-(reward + maxAction)) >= 0.001:
-                # update the utility of the state
-                points[p] = reward + maxAction
-                modified = True
-
-    # update the matrix
-    for p in points:      
-        matrix[p[0]][p[1]] = points[p]
-    
-
-    print(np.matrix(matrix))        
-    
+	print(pts)
 
 if __name__ == "__main__":
     main()
