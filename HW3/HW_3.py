@@ -29,9 +29,15 @@ def main():
 				reward = 0
 
 			maxAction = pts[i,j]
+			
+			#change the row number based on cases
+			row = i
+
+			if (case > 1) and (j > 2 and j < 6):
+				row = row - (case - 1)
 
 			#top row
-			if i == 0:
+			if row == 0:
 				#top middle
 				if j != 0 and j != 6: #left, downleft, down, downright, right
 					neighbors = allNeighbors[6:]
@@ -43,7 +49,7 @@ def main():
 					neighbors = allNeighbors[6:9]
 				
 			#bottom row
-			elif i == 6:
+			elif row == 6:
 				#bottom middle
 				if j != 0 and j != 6: #right, upright, up, upleft, left
 					neighbors = allNeighbors[2:7]
