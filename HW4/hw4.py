@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[163]:
+# In[2]:
 
 import random
 import json
@@ -16,7 +16,7 @@ with open("training.json", encoding='utf-8') as ins:
 random.shuffle(array)
 
 
-# In[164]:
+# In[3]:
 
 def count_num_ingredients(dataset):
     count = 0
@@ -26,7 +26,7 @@ def count_num_ingredients(dataset):
     return count
 
 
-# In[165]:
+# In[4]:
 
 def predict_cuisine(ingredients): 
     #calculate cuisine given ingredients
@@ -57,7 +57,7 @@ def predict_cuisine(ingredients):
     return cuis_preds[0][1], cuis_preds
 
 
-# In[166]:
+# In[5]:
 
 def get_accuracy(validation):
 
@@ -85,7 +85,7 @@ def get_accuracy(validation):
     return accuracy
 
 
-# In[167]:
+# In[8]:
 
 accuracies = list()
 len_data = len(array)
@@ -151,8 +151,33 @@ for iteration in range(0,6):
     #print("ingredient prob curry leaves: {} ".format(ingredient_probs['curry leaves']))
     #print("cuisine prob indian: {}".format(cuisine_probs['indian']))
 
-average_accuracy = sum(accuracies)/len(accuracies)
-print(average_accuracy)
+average_error = sum([(100-i) for i in accuracies])/len(accuracies)
+print(average_error)
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
+
+
+# In[ ]:
+
+
 
 
 # In[ ]:
